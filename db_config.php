@@ -1,9 +1,10 @@
 <?php
 // db_config.php — Database configuration and security settings
-$host   = 'localhost';
-$user   = 'root';
-$pass   = '';
-$dbname = 'cheesyBurger';
+$host   = getenv('DB_HOST') ?: 'localhost';
+$user   = getenv('DB_USER') ?: 'root';
+$pass   = getenv('DB_PASS') !== false ? getenv('DB_PASS') : '';
+$dbname = getenv('DB_NAME') ?: 'cheesyBurger';
+
 
 $conn   = new mysqli($host, $user, $pass, $dbname);
 if ($conn->connect_error) {

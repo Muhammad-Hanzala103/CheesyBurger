@@ -1,0 +1,28 @@
+services:
+  web:
+    build: .
+    ports:
+      - "8080:80"
+    volumes:
+      - .:/var/www/html
+    environment:
+      - DB_HOST=db
+      - DB_USER=root
+      - DB_PASS=
+      - DB_NAME=cheesyBurger
+    depends_on:
+      - db
+
+  db:
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+      - MYSQL_DATABASE=cheesyBurger
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./cheesyBurger.sql:/docker-entrypoint-initdb.d/cheesyBurger.sql
+
+volumes:
+  db_data:
