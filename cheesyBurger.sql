@@ -105,6 +105,21 @@ CREATE TABLE `user_cart` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- ============================================================
+-- TABLE: order_status_log
+-- ============================================================
+DROP TABLE IF EXISTS `order_status_log`;
+CREATE TABLE `order_status_log` (
+  `id`         INT(11)     NOT NULL AUTO_INCREMENT,
+  `order_id`   VARCHAR(30) NOT NULL,
+  `status`     ENUM('pending','cooking','out','delivered','cancelled') NOT NULL,
+  `changed_at` DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `changed_by` INT(11)     DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  CONSTRAINT `fk_log_order` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_log_admin` FOREIGN KEY (`changed_by`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- ============================================================
 -- DATA: users
 -- ╔═══════════════════════╦══════════════╦═════════╗
 -- ║ Email                 ║ Password     ║ Role    ║
@@ -194,6 +209,33 @@ VALUES
  '03219876543', '', 33.5651, 73.0169, 2, NOW());
 
 COMMIT;
+
+-- ============================================================
+-- TRIGGERS: order status tracking
+-- ============================================================
+DELIMITER ;;
+
+DROP TRIGGER IF EXISTS `trg_order_status_change`;;
+CREATE TRIGGER `trg_order_status_change`
+AFTER UPDATE ON `orders`
+FOR EACH ROW
+BEGIN
+  IF NEW.status != OLD.status THEN
+    INSERT INTO `order_status_log` (`order_id`, `status`, `changed_at`, `changed_by`)
+    VALUES (NEW.id, NEW.status, NOW(), @changed_by);
+  END IF;
+END;;
+
+DROP TRIGGER IF EXISTS `trg_order_status_insert`;;
+CREATE TRIGGER `trg_order_status_insert`
+AFTER INSERT ON `orders`
+FOR EACH ROW
+BEGIN
+  INSERT INTO `order_status_log` (`order_id`, `status`, `changed_at`, `changed_by`)
+  VALUES (NEW.id, NEW.status, NOW(), @changed_by);
+END;;
+
+DELIMITER ;
 
 -- ============================================================
 -- ✅ DONE!  Verify with:
