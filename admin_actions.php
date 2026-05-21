@@ -49,17 +49,8 @@ elseif ($action === 'update_status') {
     $ok = $stmt->execute();
     $stmt->close();
 
-    if ($ok) {
-        // Log the status change
-        $stmt = $conn->prepare(
-            "INSERT INTO order_status_log (order_id, status, changed_by)
-             VALUES (?, ?, ?)"
-        );
-        $stmt->bind_param("ssi", $order_id, $status, $_SESSION['user_id']);
-        $stmt->execute();
-        $stmt->close();
-    }
-
+    // The order_status_log is automatically populated via database triggers (trg_order_status_change)
+    // with the active admin user's ID captured from @changed_by session variable.
     echo json_encode(['success' => $ok]);
 }
 
@@ -99,10 +90,7 @@ elseif ($action === 'add_menu') {
 
     if (!$name || !$price) { echo json_encode(['success' => false, 'error' => 'Name and price required']); exit; }
 
-    $stmt = $conn->prepare("INSERT INTO menu (emoji,name,`desc`,price,cat,avail) VALUES(?,?,?,?,?,1)");
-    $stmt->bind_param("sssiss", $emoji, $name, $desc, $price, $cat);
-    // fix: price is int
-    $stmt = $conn->prepare("INSERT INTO menu (emoji,name,`desc`,price,cat,avail) VALUES(?,?,?,?,?,1)");
+    $stmt = $conn->prepare("INSERT INTO menu (emoji, name, `desc`, price, cat, avail) VALUES (?, ?, ?, ?, ?, 1)");
     $stmt->bind_param("sssis", $emoji, $name, $desc, $price, $cat);
     $ok = $stmt->execute();
     $new_id = $stmt->insert_id;

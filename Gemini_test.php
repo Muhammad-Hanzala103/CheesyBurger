@@ -47,9 +47,8 @@
     <h2>🧀 Gemini PHP Diagnostic</h2>
 
     <?php
-    // ── PASTE YOUR KEY HERE ──────────────────────────────────────
-    $API_KEY = 'AIzaSyDpUtnwnqAJrkIxFQyql6hPhQOiTBC-KHM';   // <-- full key
-// ────────────────────────────────────────────────────────────
+    include 'db_config.php';
+    $API_KEY = GEMINI_API_KEY;
     
     // ── Step 1: List ALL available models for your key ───────────
     echo '<div class="box">';

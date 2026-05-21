@@ -4,7 +4,7 @@
 //  Model: gemini-1.5-flash (stable free tier — 15 RPM)
 //  FREE: 1,500 requests/day | No credit card needed
 // ================================================================
-session_start();
+include 'db_config.php';
 header('Content-Type: application/json');
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -18,14 +18,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-// ================================================================
-//  ✅ PASTE YOUR GEMINI API KEY HERE
-//  Get free key: https://aistudio.google.com/ → Get API Key
-//  Key starts with: AIza...
-// ================================================================
-define('GEMINI_API_KEY', 'AIzaSyDpUtnwnqAJrkIxFQyql6hPhQOiTBC-KHM');
+// Model & API coordinates are loaded from db_config.php
 define('GEMINI_MODEL', 'gemini-2.5-flash');
-// ================================================================
 
 // ── Read request body ────────────────────────────────────────
 $body = json_decode(file_get_contents('php://input'), true);
